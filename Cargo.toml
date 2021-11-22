@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 requestty = "0.1.0"
+titlecase = "1.0"
+home = "0.5.3"

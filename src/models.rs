@@ -72,5 +72,6 @@ impl Hangar {
 #[derive(Debug)]
 pub enum HangarCreateError {
     NoNameGiven,
-    NoDescriptionGiven
+    NoDescriptionGiven,
+    InvalidFile
 }
