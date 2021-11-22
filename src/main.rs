@@ -26,10 +26,6 @@ fn main() {
     else {
         view::hangar_load_menu(&app_paths); // Temporary, just prints storage files
     }
-    // let answers: Answers = view::hangar_create_menu();
-    // let hangar: models::Hangar = create_hangar(&answers).unwrap();
-    // hangar.preflight();
-}
 
 fn hangar_ctl(hangar: &mut models::Hangar) {
     println!("{:?}", hangar)
