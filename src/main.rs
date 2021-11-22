@@ -10,19 +10,29 @@ fn main() {
     let dir = home::home_dir().expect("Home directory not found!");
     let app_paths: view::InstallInfo = view::build_app_directories(dir.to_str().unwrap()); 
     let installed = view::check_install(&app_paths);
+    let mut hangar: models::Hangar;
     if !installed {
-        match view::install(&app_paths) {
-            Ok(_) => {
-                println!("Doing stuff!");
+        println!("Running first time setup...");
+        view::install(&app_paths).expect("Installation failed!");
+        let new_hangar_data = view::hangar_create_menu();
+        match create_hangar(&new_hangar_data) {
+            Ok(new_hangar) => {
+                hangar = new_hangar;
+                hangar_ctl(&mut hangar);
             },
-            Err(err_type) => {
-                println!("Yikes!");
-            } 
+            Err(reason) => println!("{:?}", reason)
         }
+    }
+    else {
+        view::hangar_load_menu(&app_paths); // Temporary, just prints storage files
     }
     // let answers: Answers = view::hangar_create_menu();
     // let hangar: models::Hangar = create_hangar(&answers).unwrap();
     // hangar.preflight();
+}
+
+fn hangar_ctl(hangar: &mut models::Hangar) {
+    println!("{:?}", hangar)
 }
 
 fn create_hangar(data: &Answers) -> Result<models::Hangar, models::HangarCreateError>{

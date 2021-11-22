@@ -69,20 +69,16 @@ pub fn hangar_create_menu() -> Answers{
 }
 
 pub fn hangar_load_menu(paths: &InstallInfo){
-    // On hold until file stuff gets figured out
 
-    // let hangar_files = fs::read_dir("~/.hangar/data").unwrap();
-    // let mut names: HashMap<String, String> = HashMap::new();
-    // for path in hangar_files {
-    //     let path_string: String = path.unwrap().path().display().to_string();
-    //     if path_string.contains(".gitkeep"){
-    //         continue;
-    //     }
-    //     let split_path: Vec<String> = path_string.split("/").map(|x| x.to_string()).collect();
-    //     let file_name = split_path.last().unwrap();
-    //     names.insert(titlecase(&file_name.replace("-"," ").replace(".json", "")), path_string);
-    // }
-    // println!("{:?}", names);
+    let hangar_files = fs::read_dir(&paths.data).unwrap();
+    let mut names: HashMap<String, String> = HashMap::new();
+    for path in hangar_files {
+        let path_string: String = path.unwrap().path().display().to_string();
+        let split_path: Vec<String> = path_string.split("/").map(|x| x.to_string()).collect();
+        let file_name = split_path.last().unwrap();
+        names.insert(titlecase(&file_name.replace("-"," ").replace(".json", "")), path_string);
+    }
+    println!("{:?}", names);
 }
 
 #[derive(Debug)]
