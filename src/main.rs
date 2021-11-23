@@ -27,6 +27,8 @@ fn main() {
         view::hangar_load_menu(&app_paths); // Temporary, just prints storage files
     }
 
+}
+
 fn hangar_ctl(hangar: &mut models::Hangar) {
     println!("{:?}", hangar)
 }
