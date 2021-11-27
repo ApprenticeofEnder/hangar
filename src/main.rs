@@ -2,9 +2,6 @@ mod models;
 mod view;
 
 use home;
-use std::io;
-use std::fs;
-use std::path;
 use requestty::Answers;
 
 fn main() {
@@ -15,6 +12,7 @@ fn main() {
     if !installed {
         println!("Running first time setup...");
         view::install(&app_paths).expect("Installation failed!");
+        println!("First time setup complete");
         let new_hangar_data = view::hangar_create_menu();
         hangar = create_hangar(&new_hangar_data).unwrap();
         hangar_ctl(&mut hangar);
@@ -23,6 +21,7 @@ fn main() {
         match view::hangar_load_menu(&app_paths) {
             Some(hangar_file) => { // Load an existing hangar
                 // TODO: implement hangar loading functionality
+                println!("{:?}", hangar_file);
             },
             None => { // Create a new hangar
                 let new_hangar_data = view::hangar_create_menu();
@@ -59,6 +58,7 @@ fn load_hangar(hangar_file: String) -> Result<models::Hangar, models::HangarCrea
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_preflight() {

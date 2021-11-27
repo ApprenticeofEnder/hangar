@@ -1,7 +1,7 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::collections::HashMap;
-use requestty::{Question, Answer, Answers};
+use requestty::{Question, Answers};
 use titlecase::titlecase;
 
 const APP_FOLDER: &str = ".hangar";
