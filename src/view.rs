@@ -22,7 +22,6 @@ pub fn build_app_directories(home_dir: &str) -> InstallInfo {
     }
 }
 
-
 pub fn check_install(paths: &InstallInfo) -> bool{
     match fs::read_dir(&paths.install) {
         Ok(_) => match fs::read_dir(&paths.data) {
@@ -68,23 +67,29 @@ pub fn hangar_create_menu() -> Answers{
     answers
 }
 
-pub fn hangar_load_menu(paths: &InstallInfo) -> String{
+pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf>{
     let hangar_files = fs::read_dir(&paths.data).unwrap();
-    let mut files: HashMap<String, String> = HashMap::new();
-    let mut hangar_names: Vec<String> = Vec::new();
+    let mut files: HashMap<String, PathBuf> = HashMap::new();
+    let mut options: Vec<String> = Vec::new();
+    let create_option: String = String::from("Create New Hangar");
     for path in hangar_files {
-        let path_string = path.unwrap().path().display().to_string();
+        let path_buf = path.unwrap().path();
+        let path_string = path_buf.display().to_string();
         let hangar_name = get_hangar_name_from_file(&path_string);
-        files.insert(hangar_name.clone(), path_string);
-        hangar_names.push(hangar_name);
+        files.insert(hangar_name.clone(), path_buf);
+        options.push(hangar_name);
     }
+    options.push(create_option.clone());
     let question = Question::select("hangarfile")
         .message("Select Hangar to load from:")
         .choices(
-            hangar_names
+            options
         ).build();
-    let key = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
-    files.get(&key).unwrap().clone()
+    let key: String = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
+    if key.eq(&create_option) {
+        return None;
+    }
+    Some(files.get(&key).unwrap().clone())
 }
 
 fn get_hangar_name_from_file(path: &String) -> String {
