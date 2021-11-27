@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 use requestty::{Question, Answer, Answers};
 use titlecase::titlecase;
@@ -68,17 +68,30 @@ pub fn hangar_create_menu() -> Answers{
     answers
 }
 
-pub fn hangar_load_menu(paths: &InstallInfo){
-
+pub fn hangar_load_menu(paths: &InstallInfo) -> String{
     let hangar_files = fs::read_dir(&paths.data).unwrap();
-    let mut names: HashMap<String, String> = HashMap::new();
+    let mut files: HashMap<String, String> = HashMap::new();
+    let mut hangar_names: Vec<String> = Vec::new();
     for path in hangar_files {
-        let path_string: String = path.unwrap().path().display().to_string();
-        let split_path: Vec<String> = path_string.split("/").map(|x| x.to_string()).collect();
-        let file_name = split_path.last().unwrap();
-        names.insert(titlecase(&file_name.replace("-"," ").replace(".json", "")), path_string);
+        let path_string = path.unwrap().path().display().to_string();
+        let hangar_name = get_hangar_name_from_file(&path_string);
+        files.insert(hangar_name.clone(), path_string);
+        hangar_names.push(hangar_name);
     }
-    println!("{:?}", names);
+    let question = Question::select("hangarfile")
+        .message("Select Hangar to load from:")
+        .choices(
+            hangar_names
+        ).build();
+    let key = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
+    files.get(&key).unwrap().clone()
+}
+
+fn get_hangar_name_from_file(path: &String) -> String {
+    let split_path: Vec<String> = path.split("/").map(|x| x.to_string()).collect();
+    let file_name = split_path.last().unwrap();
+    let hangar_name = titlecase(&file_name.replace("-"," ").replace(".json", ""));
+    hangar_name
 }
 
 #[derive(Debug)]
@@ -91,4 +104,23 @@ pub struct InstallInfo{
 pub enum InstallError {
     AppFolderCreateError,
     DataFolderCreateError
+}
+
+#[derive(Debug)]
+pub enum LoadingOption {
+
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_path_loading(){
+        let tmp_path = "/tmp/sample-hangar.json";
+        fs::File::create(tmp_path).expect("Error creating file!");
+        let hangar_name: String = get_hangar_name_from_file(&String::from(tmp_path));
+        assert_eq!(String::from("Sample Hangar"), hangar_name);
+        fs::remove_file(tmp_path).unwrap();
+    }
 }
