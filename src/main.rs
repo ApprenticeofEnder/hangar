@@ -4,6 +4,7 @@ mod view;
 use home;
 use std::io;
 use std::fs;
+use std::path;
 use requestty::Answers;
 
 fn main() {
@@ -15,16 +16,20 @@ fn main() {
         println!("Running first time setup...");
         view::install(&app_paths).expect("Installation failed!");
         let new_hangar_data = view::hangar_create_menu();
-        match create_hangar(&new_hangar_data) {
-            Ok(new_hangar) => {
-                hangar = new_hangar;
-                hangar_ctl(&mut hangar);
-            },
-            Err(reason) => println!("{:?}", reason)
-        }
+        hangar = create_hangar(&new_hangar_data).unwrap();
+        hangar_ctl(&mut hangar);
     }
     else {
-        view::hangar_load_menu(&app_paths); // Temporary, just prints storage files
+        match view::hangar_load_menu(&app_paths) {
+            Some(hangar_file) => { // Load an existing hangar
+                // TODO: implement hangar loading functionality
+            },
+            None => { // Create a new hangar
+                let new_hangar_data = view::hangar_create_menu();
+                hangar = create_hangar(&new_hangar_data).unwrap();
+                hangar_ctl(&mut hangar);
+            }
+        }
     }
 
 }
