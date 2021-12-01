@@ -14,8 +14,15 @@ fn main() {
         view::install(&app_paths).expect("Installation failed!");
         println!("First time setup complete");
         let new_hangar_data = view::hangar_create_menu();
-        hangar = create_hangar(&new_hangar_data).unwrap();
-        hangar_ctl(&mut hangar);
+        match create_hangar(&new_hangar_data) {
+            Ok(new_hangar) => {
+                hangar = new_hangar;
+                hangar_ctl(&mut hangar);
+            },
+            Err(reason) => {
+                println!("{:?}", reason);
+            }
+        }
     }
     else {
         match view::hangar_load_menu(&app_paths) {
@@ -25,8 +32,16 @@ fn main() {
             },
             None => { // Create a new hangar
                 let new_hangar_data = view::hangar_create_menu();
-                hangar = create_hangar(&new_hangar_data).unwrap();
-                hangar_ctl(&mut hangar);
+                match create_hangar(&new_hangar_data) {
+                    Ok(new_hangar) => {
+                        hangar = new_hangar;
+                        hangar_ctl(&mut hangar);
+                    },
+                    Err(reason) => {
+                        println!("{:?}", reason);
+                    }
+                }
+                
             }
         }
     }

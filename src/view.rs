@@ -80,16 +80,26 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf>{
         options.push(hangar_name);
     }
     options.push(create_option.clone());
-    let question = Question::select("hangarfile")
+    let question: Question = Question::select("hangarfile")
         .message("Select Hangar to load from:")
         .choices(
             options
         ).build();
-    let key: String = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
-    if key.eq(&create_option) {
-        return None;
+    // let key: String = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
+    match requestty::prompt_one(question) {
+        Ok(answer) => {
+            let key = answer.try_into_list_item().unwrap().text;
+            if key.eq(&create_option) {
+                return None;
+            }
+            Some(files.get(&key).unwrap().clone())
+        },
+        Err(reason) => {
+            println!("{:?}", reason);
+            return None;
+        }
     }
-    Some(files.get(&key).unwrap().clone())
+    
 }
 
 fn get_hangar_name_from_file(path: &String) -> String {
