@@ -48,8 +48,27 @@ fn main() {
 }
 
 fn hangar_ctl(hangar: &mut models::Hangar) {
-    let action: view::MenuAction = view::menu().unwrap();
-    println!("{:?}", action);
+    loop {
+        match view::menu() {
+            Ok(view::MenuAction::Preflight) => {
+                // Preflight code
+            },
+            Ok(view::MenuAction::ManageFlights) => {
+                // Manage preflights
+            },
+            Ok(view::MenuAction::Exit) => {
+                break;
+            }
+            Err(reason) => match reason {
+                Some(requestty_error) => {
+                    println!("{:?}", requestty_error);
+                }
+                None => {
+                    println!("An option was given that doesn't exist.");
+                }
+            }
+        }
+    }
 }
 
 fn create_hangar(data: &Answers) -> Result<models::Hangar, models::HangarCreateError>{
