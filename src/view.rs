@@ -1,4 +1,4 @@
-use requestty::{Question, Answers};
+use requestty::{Answers, Question};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -21,7 +21,7 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
         })
         .collect();
     let menu = Question::select("option").choices(options).build();
-    
+
     match requestty::prompt_one(menu) {
         Ok(answer) => {
             let option = answer.try_into_list_item().unwrap().text;
@@ -85,7 +85,7 @@ pub fn hangar_create_menu() -> Answers {
         Question::input("hangar_desc")
             .message("What is the description of your new hangar")
             .default("Default Hangar.")
-            .build()
+            .build(),
     ];
 
     let answers: Answers = requestty::prompt(questions).unwrap();
@@ -107,7 +107,8 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf> {
     options.push(create_option.clone());
     let question: Question = Question::select("hangarfile")
         .message("Select Hangar to load from:")
-        .choices(options).build();
+        .choices(options)
+        .build();
     match requestty::prompt_one(question) {
         Ok(answer) => {
             let key = answer.try_into_list_item().unwrap().text;
@@ -121,7 +122,6 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf> {
             return None;
         }
     }
-    
 }
 
 fn get_hangar_name_from_file(path: &String) -> String {
@@ -132,7 +132,7 @@ fn get_hangar_name_from_file(path: &String) -> String {
 }
 
 #[derive(Debug)]
-pub struct InstallInfo{
+pub struct InstallInfo {
     pub install: PathBuf,
     pub data: PathBuf,
 }
@@ -169,7 +169,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_path_loading(){
+    fn test_path_loading() {
         let tmp_path = "/tmp/sample-hangar.json";
         fs::File::create(tmp_path).expect("Error creating file!");
         let hangar_name: String = get_hangar_name_from_file(&String::from(tmp_path));

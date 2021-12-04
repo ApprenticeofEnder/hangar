@@ -6,7 +6,7 @@ use requestty::Answers;
 
 fn main() {
     let dir = home::home_dir().expect("Home directory not found!");
-    let app_paths: view::InstallInfo = view::build_app_directories(dir.to_str().unwrap()); 
+    let app_paths: view::InstallInfo = view::build_app_directories(dir.to_str().unwrap());
     let installed = view::check_install(&app_paths);
     let mut hangar: models::Hangar;
     if !installed {
@@ -18,25 +18,26 @@ fn main() {
             Ok(new_hangar) => {
                 hangar = new_hangar;
                 hangar_ctl(&mut hangar);
-            },
+            }
             Err(reason) => {
                 println!("{:?}", reason);
             }
         }
-    }
-    else {
+    } else {
         match view::hangar_load_menu(&app_paths) {
-            Some(hangar_file) => { // Load an existing hangar
+            Some(hangar_file) => {
+                // Load an existing hangar
                 // TODO: implement hangar loading functionality
                 println!("{:?}", hangar_file);
-            },
-            None => { // Create a new hangar
+            }
+            None => {
+                // Create a new hangar
                 let new_hangar_data = view::hangar_create_menu();
                 match create_hangar(&new_hangar_data) {
                     Ok(new_hangar) => {
                         hangar = new_hangar;
                         hangar_ctl(&mut hangar);
-                    },
+                    }
                     Err(reason) => {
                         println!("{:?}", reason);
                     }
@@ -44,7 +45,6 @@ fn main() {
             }
         }
     }
-
 }
 
 fn hangar_ctl(hangar: &mut models::Hangar) {
@@ -52,10 +52,10 @@ fn hangar_ctl(hangar: &mut models::Hangar) {
         match view::menu() {
             Ok(view::MenuAction::Preflight) => {
                 // Preflight code
-            },
+            }
             Ok(view::MenuAction::ManageFlights) => {
                 // Manage preflights
-            },
+            }
             Ok(view::MenuAction::Exit) => {
                 break;
             }
@@ -66,26 +66,26 @@ fn hangar_ctl(hangar: &mut models::Hangar) {
                 None => {
                     println!("An option was given that doesn't exist.");
                 }
-            }
+            },
         }
     }
 }
 
-fn create_hangar(data: &Answers) -> Result<models::Hangar, models::HangarCreateError>{
+fn create_hangar(data: &Answers) -> Result<models::Hangar, models::HangarCreateError> {
     match data.get("hangar_name") {
         Some(name) => match data.get("hangar_desc") {
             Some(desc) => Ok(models::Hangar {
                 name: name.as_string().unwrap().to_string(),
                 description: desc.as_string().unwrap().to_string(),
-                flights: Vec::new()
+                flights: Vec::new(),
             }),
-            _ => Err(models::HangarCreateError::NoDescriptionGiven)
+            _ => Err(models::HangarCreateError::NoDescriptionGiven),
         },
-        _ => Err(models::HangarCreateError::NoNameGiven)
+        _ => Err(models::HangarCreateError::NoNameGiven),
     }
 }
 
-fn load_hangar(hangar_file: String) -> Result<models::Hangar, models::HangarCreateError>{
+fn load_hangar(hangar_file: String) -> Result<models::Hangar, models::HangarCreateError> {
     Err(models::HangarCreateError::NoNameGiven)
 }
 
@@ -99,12 +99,12 @@ mod tests {
         let flight1 = models::Flight {
             program: String::from("pip"),
             preflight_args: vec![String::from("--version")],
-            preflight_confirm: String::from("pip 21.0.1")
+            preflight_confirm: String::from("pip 21.0.1"),
         };
         let mut hangar1 = models::Hangar {
             name: String::from("Test"),
             description: String::from("Test hangar"),
-            flights: Vec::new() 
+            flights: Vec::new(),
         };
         hangar1.flights.push(flight1);
         assert_eq!(hangar1.preflight(), true);
@@ -115,12 +115,12 @@ mod tests {
         let flight1 = models::Flight {
             program: String::from("pip4"),
             preflight_args: vec![String::from("--version")],
-            preflight_confirm: String::from("pip 21.0.1")
+            preflight_confirm: String::from("pip 21.0.1"),
         };
         let mut hangar1 = models::Hangar {
             name: String::from("Test"),
             description: String::from("Test hangar"),
-            flights: Vec::new() 
+            flights: Vec::new(),
         };
         hangar1.flights.push(flight1);
         assert_eq!(hangar1.preflight(), false);
