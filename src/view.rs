@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use std::collections::HashMap;
-use requestty::{Question, Answer, Answers};
+use requestty::{Question, Answers};
 use titlecase::titlecase;
 
 const APP_FOLDER: &str = ".hangar";
@@ -21,7 +21,6 @@ pub fn build_app_directories(home_dir: &str) -> InstallInfo {
         data: data_path
     }
 }
-
 
 pub fn check_install(paths: &InstallInfo) -> bool{
     match fs::read_dir(&paths.install) {
@@ -68,17 +67,46 @@ pub fn hangar_create_menu() -> Answers{
     answers
 }
 
-pub fn hangar_load_menu(paths: &InstallInfo){
-
+pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf>{
     let hangar_files = fs::read_dir(&paths.data).unwrap();
-    let mut names: HashMap<String, String> = HashMap::new();
+    let mut files: HashMap<String, PathBuf> = HashMap::new();
+    let mut options: Vec<String> = Vec::new();
+    let create_option: String = String::from("Create New Hangar");
     for path in hangar_files {
-        let path_string: String = path.unwrap().path().display().to_string();
-        let split_path: Vec<String> = path_string.split("/").map(|x| x.to_string()).collect();
-        let file_name = split_path.last().unwrap();
-        names.insert(titlecase(&file_name.replace("-"," ").replace(".json", "")), path_string);
+        let path_buf = path.unwrap().path();
+        let path_string = path_buf.display().to_string();
+        let hangar_name = get_hangar_name_from_file(&path_string);
+        files.insert(hangar_name.clone(), path_buf);
+        options.push(hangar_name);
     }
-    println!("{:?}", names);
+    options.push(create_option.clone());
+    let question: Question = Question::select("hangarfile")
+        .message("Select Hangar to load from:")
+        .choices(
+            options
+        ).build();
+    // let key: String = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
+    match requestty::prompt_one(question) {
+        Ok(answer) => {
+            let key = answer.try_into_list_item().unwrap().text;
+            if key.eq(&create_option) {
+                return None;
+            }
+            Some(files.get(&key).unwrap().clone())
+        },
+        Err(reason) => {
+            println!("{:?}", reason);
+            return None;
+        }
+    }
+    
+}
+
+fn get_hangar_name_from_file(path: &String) -> String {
+    let split_path: Vec<String> = path.split("/").map(|x| x.to_string()).collect();
+    let file_name = split_path.last().unwrap();
+    let hangar_name = titlecase(&file_name.replace("-"," ").replace(".json", ""));
+    hangar_name
 }
 
 #[derive(Debug)]
@@ -91,4 +119,23 @@ pub struct InstallInfo{
 pub enum InstallError {
     AppFolderCreateError,
     DataFolderCreateError
+}
+
+#[derive(Debug)]
+pub enum LoadingOption {
+
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_path_loading(){
+        let tmp_path = "/tmp/sample-hangar.json";
+        fs::File::create(tmp_path).expect("Error creating file!");
+        let hangar_name: String = get_hangar_name_from_file(&String::from(tmp_path));
+        assert_eq!(String::from("Sample Hangar"), hangar_name);
+        fs::remove_file(tmp_path).unwrap();
+    }
 }
