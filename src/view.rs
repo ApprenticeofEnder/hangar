@@ -7,8 +7,32 @@ use titlecase::titlecase;
 const APP_FOLDER: &str = ".hangar";
 const DATA_FOLDER: &str = "data";
 
-pub fn menu(){
-    // TODO: Create the overall menu
+pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>>{
+    let mut action_schema: Vec<(String, MenuAction)> = Vec::new();
+    action_schema.push((String::from("Preflight"), MenuAction::Preflight));
+    action_schema.push((String::from("Manage Flights"), MenuAction::ManageFlights));
+    action_schema.push((String::from("Exit"), MenuAction::Exit));
+    let mut actions: HashMap<String, MenuAction> = HashMap::new();
+    let options: Vec<String> = action_schema.into_iter().map(|x| {
+        actions.insert(x.0.clone(), x.1);
+        x.0
+    }).collect();
+    let menu = Question::select("option")
+        .choices(options)
+        .build();
+    
+    match requestty::prompt_one(menu) {
+        Ok(answer) => {
+            let option = answer.try_into_list_item().unwrap().text;
+            match actions.get(&option) {
+                Some(action) => Ok(*action),
+                None => Err(None)
+            }
+        },
+        Err(reason) => {
+            return Err(Some(reason));
+        }
+    }
 }
 
 /// Constructs app directory PathBufs for folders as needed.
@@ -85,7 +109,6 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf>{
         .choices(
             options
         ).build();
-    // let key: String = requestty::prompt_one(question).unwrap().try_into_list_item().unwrap().text;
     match requestty::prompt_one(question) {
         Ok(answer) => {
             let key = answer.try_into_list_item().unwrap().text;
@@ -123,6 +146,29 @@ pub enum InstallError {
 
 #[derive(Debug)]
 pub enum LoadingOption {
+
+}
+
+#[derive(Debug)]
+pub enum MenuAction {
+    Exit,
+    ManageFlights,
+    Preflight,
+}
+
+impl Clone for MenuAction {
+    fn clone(&self) -> MenuAction {
+        match self {
+            MenuAction::Exit => MenuAction::Exit,
+            MenuAction::ManageFlights => MenuAction::ManageFlights,
+            MenuAction::Preflight => MenuAction::Preflight
+        }
+    }
+}
+
+//This works . . . why?
+
+impl Copy for MenuAction {
 
 }
 

@@ -41,7 +41,6 @@ fn main() {
                         println!("{:?}", reason);
                     }
                 }
-                
             }
         }
     }
@@ -49,7 +48,8 @@ fn main() {
 }
 
 fn hangar_ctl(hangar: &mut models::Hangar) {
-    println!("{:?}", hangar)
+    let action: view::MenuAction = view::menu().unwrap();
+    println!("{:?}", action);
 }
 
 fn create_hangar(data: &Answers) -> Result<models::Hangar, models::HangarCreateError>{
