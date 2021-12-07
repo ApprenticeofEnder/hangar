@@ -143,26 +143,12 @@ pub enum InstallError {
     DataFolderCreateError,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum MenuAction {
     Exit,
     ManageFlights,
     Preflight,
 }
-
-impl Clone for MenuAction {
-    fn clone(&self) -> MenuAction {
-        match self {
-            MenuAction::Exit => MenuAction::Exit,
-            MenuAction::ManageFlights => MenuAction::ManageFlights,
-            MenuAction::Preflight => MenuAction::Preflight,
-        }
-    }
-}
-
-//This works . . . why?
-
-impl Copy for MenuAction {}
 
 #[cfg(test)]
 mod tests {
