@@ -8,10 +8,11 @@ const APP_FOLDER: &str = ".hangar";
 const DATA_FOLDER: &str = "data";
 
 pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
-    let mut action_schema: Vec<(String, MenuAction)> = Vec::new();
-    action_schema.push(("Preflight".to_string(), MenuAction::Preflight));
-    action_schema.push(("Manage Flights".to_string(), MenuAction::ManageFlights));
-    action_schema.push(("Exit".to_string(), MenuAction::Exit));
+    let action_schema: Vec<(String, MenuAction)> = vec![
+        ("Preflight".to_string(), MenuAction::Preflight),
+        ("Manage Flights".to_string(), MenuAction::ManageFlights),
+        ("Exit".to_string(), MenuAction::Exit)
+    ];
     let mut actions: HashMap<String, MenuAction> = HashMap::new();
     let options: Vec<String> = action_schema
         .into_iter()
@@ -20,7 +21,7 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
             x.0
         })
         .collect();
-    let menu = Question::select("option").choices(options).build();
+    let menu = Question::select("option").message("Select an option").choices(options).build();
 
     match requestty::prompt_one(menu) {
         Ok(answer) => {
