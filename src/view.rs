@@ -11,7 +11,7 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
     let action_schema: Vec<(String, MenuAction)> = vec![
         ("Preflight".to_string(), MenuAction::Preflight),
         ("Manage Flights".to_string(), MenuAction::ManageFlights),
-        ("Exit".to_string(), MenuAction::Exit)
+        ("Exit".to_string(), MenuAction::Exit),
     ];
     let mut actions: HashMap<String, MenuAction> = HashMap::new();
     let options: Vec<String> = action_schema
@@ -21,7 +21,10 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
             x.0
         })
         .collect();
-    let menu = Question::select("option").message("Select an option").choices(options).build();
+    let menu = Question::select("option")
+        .message("Select an option")
+        .choices(options)
+        .build();
 
     match requestty::prompt_one(menu) {
         Ok(answer) => {
@@ -31,9 +34,7 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
                 None => Err(None),
             }
         }
-        Err(reason) => {
-            Err(Some(reason))
-        }
+        Err(reason) => Err(Some(reason)),
     }
 }
 
@@ -131,7 +132,8 @@ pub fn flights_menu(flight_names: &[String]) -> i32 {
         Ok(answer) => {
             let key = answer.try_into_list_item().unwrap().text;
             let option_count: i32 = flight_names.len() as i32;
-            let filtered: Vec<i32> = (0..option_count).collect::<Vec<i32>>()
+            let filtered: Vec<i32> = (0..option_count)
+                .collect::<Vec<i32>>()
                 .into_iter()
                 .filter(|x| flight_names.get(*x as usize).unwrap().eq(&key))
                 .collect();
