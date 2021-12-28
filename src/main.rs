@@ -80,18 +80,22 @@ fn flight_management(hangar: &mut models::Hangar) {
         flight_names.push("Exit".to_string());
         let flight_index = view::flights_menu(&flight_names);
         let option_count = flight_names.len() as i32;
-        if flight_index == option_count - 2 {
-            println!("Creating new flight!");
-        }
-        else if flight_index == option_count - 1 {
-            break
-        }
-        else if flight_index == -1 {
-            println!("Error, aborting");
-            break
-        }
-        else {
-            println!("Modifying existing flight!");
+        let create_index = option_count - 2;
+        let exit_index = option_count - 1;
+        match flight_index {
+            flight_index if flight_index == create_index => {
+                println!("Creating new flight!");
+            }
+            flight_index if flight_index == exit_index => {
+                break;
+            }
+            -1 => {
+                println!("Error, aborting");
+                break;
+            }
+            _ => {
+                println!("Modifying existing flight!");
+            }
         }
     }
 }
