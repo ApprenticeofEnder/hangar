@@ -133,7 +133,6 @@ pub fn flights_menu(flight_names: &[String]) -> i32 {
             let key = answer.try_into_list_item().unwrap().text;
             let option_count: i32 = flight_names.len() as i32;
             let filtered: Vec<i32> = (0..option_count)
-                .collect::<Vec<i32>>()
                 .into_iter()
                 .filter(|x| flight_names.get(*x as usize).unwrap().eq(&key))
                 .collect();
