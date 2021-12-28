@@ -60,7 +60,7 @@ pub fn install(paths: &InstallInfo) -> Result<bool, InstallError> {
     match fs::create_dir(&paths.install) {
         Ok(_) => create_data_path(paths),
         Err(reason) => {
-            println!("Error creating {}: {}", paths.install.display(), reason);
+            error!("Error creating {}: {}", paths.install.display(), reason);
             Err(InstallError::AppFolderCreateError)
         }
     }
@@ -70,7 +70,7 @@ fn create_data_path(paths: &InstallInfo) -> Result<bool, InstallError> {
     match fs::create_dir(&paths.data) {
         Ok(_) => Ok(true),
         Err(reason) => {
-            println!("Error creating {}: {}", paths.data.display(), reason);
+            error!("Error creating {}: {}", paths.data.display(), reason);
             Err(InstallError::DataFolderCreateError)
         }
     }
@@ -117,7 +117,7 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf> {
             Some(files.get(&key).unwrap().clone())
         }
         Err(reason) => {
-            println!("{:?}", reason);
+            error!("{:?}", reason);
             None
         }
     }
@@ -139,7 +139,7 @@ pub fn flights_menu(flight_names: &[String]) -> i32 {
             return *filtered.first().unwrap();
         }
         Err(reason) => {
-            println!("{:?}", reason);
+            error!("{:?}", reason);
             -1
         }
     }
