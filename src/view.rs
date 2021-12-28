@@ -31,7 +31,7 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
             }
         }
         Err(reason) => {
-            return Err(Some(reason));
+            Err(Some(reason))
         }
     }
 }
@@ -49,10 +49,7 @@ pub fn build_app_directories(home_dir: &str) -> InstallInfo {
 
 pub fn check_install(paths: &InstallInfo) -> bool {
     match fs::read_dir(&paths.install) {
-        Ok(_) => match fs::read_dir(&paths.data) {
-            Ok(_) => true,
-            Err(_) => false,
-        },
+        Ok(_) => fs::read_dir(&paths.data).is_ok(),
         Err(_) => false,
     }
 }
@@ -119,16 +116,37 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf> {
         }
         Err(reason) => {
             println!("{:?}", reason);
-            return None;
+            None
         }
     }
 }
 
-fn get_hangar_name_from_file(path: &String) -> String {
-    let split_path: Vec<String> = path.split("/").map(|x| x.to_string()).collect();
+pub fn flights_menu(flight_names: &[String]) -> i32 {
+    let question: Question = Question::select("flight")
+        .message("Select a Flight:")
+        .choices(flight_names)
+        .build();
+    match requestty::prompt_one(question) {
+        Ok(answer) => {
+            let key = answer.try_into_list_item().unwrap().text;
+            let option_count: i32 = flight_names.len() as i32;
+            let filtered: Vec<i32> = (0..option_count).collect::<Vec<i32>>()
+                .into_iter()
+                .filter(|x| flight_names.get(*x as usize).unwrap().eq(&key))
+                .collect();
+            return *filtered.first().unwrap();
+        }
+        Err(reason) => {
+            println!("{:?}", reason);
+            -1
+        }
+    }
+}
+
+fn get_hangar_name_from_file(path: &str) -> String {
+    let split_path: Vec<String> = path.split('/').map(|x| x.to_string()).collect();
     let file_name = split_path.last().unwrap();
-    let hangar_name = titlecase(&file_name.replace("-", " ").replace(".json", ""));
-    hangar_name
+    titlecase(&file_name.replace("-", " ").replace(".json", ""))
 }
 
 #[derive(Debug)]

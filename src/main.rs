@@ -54,7 +54,7 @@ fn hangar_ctl(hangar: &mut models::Hangar) {
                 // Preflight code
             }
             Ok(view::MenuAction::ManageFlights) => {
-                // Manage preflights
+                
             }
             Ok(view::MenuAction::Exit) => {
                 break;
@@ -68,6 +68,24 @@ fn hangar_ctl(hangar: &mut models::Hangar) {
                 }
             },
         }
+    }
+}
+
+fn flight_management(hangar: &mut models::Hangar) {
+    let mut flight_names: Vec<String> = Vec::new();
+    for flight in &hangar.flights {
+        flight_names.push(flight.program.clone());
+    }
+    flight_names.push("Create New Flight".to_string());
+    let flight_index = view::flights_menu(&flight_names);
+    if flight_index == (flight_names.len() as i32) - 1 {
+        println!("Creating new flight!");
+    }
+    else if flight_index == -1 {
+        println!("Error, aborting");
+    }
+    else {
+        println!("Modifying existing flight!");
     }
 }
 
