@@ -14,14 +14,14 @@ fn main() {
     let mut hangar: models::Hangar;
     if !installed {
         println!("Running first time setup...");
-        info!("{}","Running first time setup...");
+        info!("{}", "Running first time setup...");
         view::install(&app_paths).expect("Installation failed!");
         println!("First time setup complete");
-        info!("{}","First time setup complete");
+        info!("{}", "First time setup complete");
         let new_hangar_data = view::hangar_create_menu();
         match create_hangar(&new_hangar_data) {
             Ok(new_hangar) => {
-                info!("{}","Hangar created successfully");
+                info!("{}", "Hangar created successfully");
                 hangar = new_hangar;
                 hangar_ctl(&mut hangar);
             }
@@ -97,11 +97,11 @@ fn flight_management(hangar: &mut models::Hangar) {
                 break;
             }
             -1 => {
-                error!("{}","Error, aborting");
+                error!("{}", "Error, aborting");
                 break;
             }
             _ => {
-                info!("{}","Modifying existing flight!");
+                info!("{}", "Modifying existing flight!");
             }
         }
     }
