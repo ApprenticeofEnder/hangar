@@ -8,10 +8,11 @@ const APP_FOLDER: &str = ".hangar";
 const DATA_FOLDER: &str = "data";
 
 pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
-    let mut action_schema: Vec<(String, MenuAction)> = Vec::new();
-    action_schema.push(("Preflight".to_string(), MenuAction::Preflight));
-    action_schema.push(("Manage Flights".to_string(), MenuAction::ManageFlights));
-    action_schema.push(("Exit".to_string(), MenuAction::Exit));
+    let action_schema: Vec<(String, MenuAction)> = vec![
+        ("Preflight".to_string(), MenuAction::Preflight),
+        ("Manage Flights".to_string(), MenuAction::ManageFlights),
+        ("Exit".to_string(), MenuAction::Exit),
+    ];
     let mut actions: HashMap<String, MenuAction> = HashMap::new();
     let options: Vec<String> = action_schema
         .into_iter()
@@ -20,7 +21,10 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
             x.0
         })
         .collect();
-    let menu = Question::select("option").choices(options).build();
+    let menu = Question::select("option")
+        .message("Select an option")
+        .choices(options)
+        .build();
 
     match requestty::prompt_one(menu) {
         Ok(answer) => {
@@ -30,9 +34,7 @@ pub fn menu() -> Result<MenuAction, Option<requestty::ErrorKind>> {
                 None => Err(None),
             }
         }
-        Err(reason) => {
-            return Err(Some(reason));
-        }
+        Err(reason) => Err(Some(reason)),
     }
 }
 
@@ -49,10 +51,7 @@ pub fn build_app_directories(home_dir: &str) -> InstallInfo {
 
 pub fn check_install(paths: &InstallInfo) -> bool {
     match fs::read_dir(&paths.install) {
-        Ok(_) => match fs::read_dir(&paths.data) {
-            Ok(_) => true,
-            Err(_) => false,
-        },
+        Ok(_) => fs::read_dir(&paths.data).is_ok(),
         Err(_) => false,
     }
 }
@@ -61,7 +60,7 @@ pub fn install(paths: &InstallInfo) -> Result<bool, InstallError> {
     match fs::create_dir(&paths.install) {
         Ok(_) => create_data_path(paths),
         Err(reason) => {
-            println!("Error creating {}: {}", paths.install.display(), reason);
+            error!("Error creating {}: {}", paths.install.display(), reason);
             Err(InstallError::AppFolderCreateError)
         }
     }
@@ -71,7 +70,7 @@ fn create_data_path(paths: &InstallInfo) -> Result<bool, InstallError> {
     match fs::create_dir(&paths.data) {
         Ok(_) => Ok(true),
         Err(reason) => {
-            println!("Error creating {}: {}", paths.data.display(), reason);
+            error!("Error creating {}: {}", paths.data.display(), reason);
             Err(InstallError::DataFolderCreateError)
         }
     }
@@ -118,17 +117,38 @@ pub fn hangar_load_menu(paths: &InstallInfo) -> Option<PathBuf> {
             Some(files.get(&key).unwrap().clone())
         }
         Err(reason) => {
-            println!("{:?}", reason);
-            return None;
+            error!("{:?}", reason);
+            None
         }
     }
 }
 
-fn get_hangar_name_from_file(path: &String) -> String {
-    let split_path: Vec<String> = path.split("/").map(|x| x.to_string()).collect();
+pub fn flights_menu(flight_names: &[String]) -> i32 {
+    let question: Question = Question::select("flight")
+        .message("Select a Flight:")
+        .choices(flight_names)
+        .build();
+    match requestty::prompt_one(question) {
+        Ok(answer) => {
+            let key = answer.try_into_list_item().unwrap().text;
+            let option_count: i32 = flight_names.len() as i32;
+            let filtered: Vec<i32> = (0..option_count)
+                .into_iter()
+                .filter(|x| flight_names.get(*x as usize).unwrap().eq(&key))
+                .collect();
+            return *filtered.first().unwrap();
+        }
+        Err(reason) => {
+            error!("{:?}", reason);
+            -1
+        }
+    }
+}
+
+fn get_hangar_name_from_file(path: &str) -> String {
+    let split_path: Vec<String> = path.split('/').map(|x| x.to_string()).collect();
     let file_name = split_path.last().unwrap();
-    let hangar_name = titlecase(&file_name.replace("-", " ").replace(".json", ""));
-    hangar_name
+    titlecase(&file_name.replace("-", " ").replace(".json", ""))
 }
 
 #[derive(Debug)]

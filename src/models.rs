@@ -18,11 +18,11 @@ impl Flight {
             Ok(result) => {
                 let output = String::from_utf8(result.stdout).unwrap();
                 let errors = String::from_utf8(result.stderr).unwrap();
-                return self.check_preflight_result(output, errors);
+                self.check_preflight_result(output, errors)
             }
             Err(error) => {
                 println!("Problem executing program {}: {}", &self.program, error);
-                return false;
+                false
             }
         }
     }
@@ -44,12 +44,12 @@ impl Flight {
 
 pub fn new_flight(
     program: &mut String,
-    preflight_args: &Vec<String>,
+    preflight_args: &[String],
     preflight_confirm: &mut String,
 ) -> Flight {
     Flight {
         program: program.trim().to_string(),
-        preflight_args: preflight_args.clone(),
+        preflight_args: preflight_args.to_owned(),
         preflight_confirm: preflight_confirm.trim().to_string(),
     }
 }
