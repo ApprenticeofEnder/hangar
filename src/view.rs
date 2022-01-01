@@ -145,6 +145,37 @@ pub fn flights_menu(flight_names: &[String]) -> i32 {
     }
 }
 
+pub fn flight_create_menu() -> Answers {
+    let questions: Vec<Question> = vec![
+        Question::input("flight_name")
+            .message("What is your new flight's name")
+            .build(),
+        Question::input("flight_exec")
+            .message("What is the executable for the new flight")
+            .build(),
+        Question::input("preflight_args")
+            .message("Add comma-separated arguments for the preflight check (e.g. -c,echo hello)")
+            .build(),
+        Question::select("stream")
+            .message("Which output stream do you wish to check for preflight?")
+            .choices(vec![
+                "stdout",
+                "stderr"
+            ])
+            .build(),
+        Question::input("package_name")
+            .message("Enter the package name as it is used in apt or apt-get (leave blank for none):")
+            .build(),
+        Question::input("reinstall")
+            .message("Enter a reinstall command to use in the event of program failure:")
+            .default("apt-get --reinstall install {package_name}")
+            .build()
+    ];
+
+    let answers: Answers = requestty::prompt(questions).unwrap();
+    answers
+}
+
 fn get_hangar_name_from_file(path: &str) -> String {
     let split_path: Vec<String> = path.split('/').map(|x| x.to_string()).collect();
     let file_name = split_path.last().unwrap();
