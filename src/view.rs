@@ -158,18 +158,17 @@ pub fn flight_create_menu() -> Answers {
             .build(),
         Question::select("stream")
             .message("Which output stream do you wish to check for preflight?")
-            .choices(vec![
-                "stdout",
-                "stderr"
-            ])
+            .choices(vec!["stdout", "stderr"])
             .build(),
         Question::input("package_name")
-            .message("Enter the package name as it is used in apt or apt-get (leave blank for none):")
+            .message(
+                "Enter the package name as it is used in apt or apt-get (leave blank for none):",
+            )
             .build(),
         Question::input("reinstall")
             .message("Enter a reinstall command to use in the event of program failure:")
             .default("apt-get --reinstall install {package_name}")
-            .build()
+            .build(),
     ];
 
     let answers: Answers = requestty::prompt(questions).unwrap();
