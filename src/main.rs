@@ -91,7 +91,7 @@ fn flight_management(hangar: &mut models::Hangar) {
         let exit_index = option_count - 1;
         match flight_index {
             flight_index if flight_index == create_index => {
-                info!("{:?}", "Creating new flight!");
+                println!("{:?}", view::flight_create_menu());
             }
             flight_index if flight_index == exit_index => {
                 break;
