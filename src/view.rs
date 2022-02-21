@@ -154,11 +154,14 @@ pub fn flight_create_menu() -> Answers {
             .message("What is the executable for the new flight")
             .build(),
         Question::input("preflight_args")
-            .message("Add comma-separated arguments for the preflight check (e.g. -c,echo hello)")
+            .message("Add pipe-separated arguments for the preflight check (e.g. -c|echo hello)")
             .build(),
         Question::select("stream")
             .message("Which output stream do you wish to check for preflight?")
             .choices(vec!["stdout", "stderr"])
+            .build(),
+        Question::input("flag")
+            .message("Select a flag to search for in preflight")
             .build(),
         Question::input("package_name")
             .message(
