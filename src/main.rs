@@ -96,7 +96,7 @@ fn flight_management(hangar: &mut models::Hangar) {
                 match create_flight(&answers) {
                     Ok(flight) => {
                         hangar.flights.push(flight);
-                    },
+                    }
                     Err(models::FlightCreateError::InvalidParameter) => {
                         error!("{}", "Invalid parameter given");
                     }
@@ -139,14 +139,13 @@ fn create_flight(data: &Answers) -> Result<models::Flight, models::FlightCreateE
     for (key, value) in data.clone().into_iter() {
         if value.is_string() {
             store.insert(key, value.try_into_string().unwrap());
-        }
-        else if value.is_list_item() {
+        } else if value.is_list_item() {
             store.insert(key, value.try_into_list_item().unwrap().text);
         }
     }
     match models::Flight::new(store) {
         Some(flight) => Ok(flight),
-        _ => Err(models::FlightCreateError::InvalidParameter)
+        _ => Err(models::FlightCreateError::InvalidParameter),
     }
 }
 

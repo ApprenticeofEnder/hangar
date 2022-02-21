@@ -1,5 +1,5 @@
-use std::process::Command;
 use std::collections::HashMap;
+use std::process::Command;
 
 #[derive(Debug)]
 pub struct Flight {
@@ -9,7 +9,7 @@ pub struct Flight {
     pub stream: String,
     pub flag: String,
     pub package_name: String,
-    pub reinstall: String
+    pub reinstall: String,
 }
 
 impl Flight {
@@ -57,14 +57,11 @@ impl Flight {
         Some(Flight {
             name: name.clone(),
             flight_exec: flight_exec.clone(),
-            preflight_args: preflight_args
-                                .split("|")
-                                .map(|x| x.to_string())
-                                .collect(),
+            preflight_args: preflight_args.split("|").map(|x| x.to_string()).collect(),
             stream: stream.clone(),
             flag: flag.clone(),
             package_name: package_name.clone(),
-            reinstall: reinstall.clone()
+            reinstall: reinstall.clone(),
         })
     }
 }
