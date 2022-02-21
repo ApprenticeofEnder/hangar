@@ -2,6 +2,7 @@ mod models;
 mod view;
 
 use requestty::Answers;
+use std::collections::HashMap;
 
 #[macro_use]
 extern crate log;
@@ -81,7 +82,7 @@ fn flight_management(hangar: &mut models::Hangar) {
     loop {
         let mut flight_names: Vec<String> = Vec::new();
         for flight in &hangar.flights {
-            flight_names.push(flight.program.clone());
+            flight_names.push(flight.name.clone());
         }
         flight_names.push("Create New Flight".to_string());
         flight_names.push("Exit".to_string());
@@ -91,7 +92,15 @@ fn flight_management(hangar: &mut models::Hangar) {
         let exit_index = option_count - 1;
         match flight_index {
             flight_index if flight_index == create_index => {
-                println!("{:?}", view::flight_create_menu());
+                let answers = view::flight_create_menu();
+                match create_flight(&answers) {
+                    Ok(flight) => {
+                        hangar.flights.push(flight);
+                    }
+                    Err(models::FlightCreateError::InvalidParameter) => {
+                        error!("{}", "Invalid parameter given");
+                    }
+                }
             }
             flight_index if flight_index == exit_index => {
                 break;
@@ -125,42 +134,25 @@ fn load_hangar(hangar_file: String) -> Result<models::Hangar, models::HangarCrea
     Err(models::HangarCreateError::NoNameGiven)
 }
 
+fn create_flight(data: &Answers) -> Result<models::Flight, models::FlightCreateError> {
+    let mut store: HashMap<String, String> = HashMap::new();
+    for (key, value) in data.clone().into_iter() {
+        if value.is_string() {
+            store.insert(key, value.try_into_string().unwrap());
+        } else if value.is_list_item() {
+            store.insert(key, value.try_into_list_item().unwrap().text);
+        }
+    }
+    match models::Flight::new(store) {
+        Some(flight) => Ok(flight),
+        _ => Err(models::FlightCreateError::InvalidParameter),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
-
-    #[test]
-    fn test_preflight() {
-        let flight1 = models::Flight {
-            program: String::from("pip"),
-            preflight_args: vec![String::from("--version")],
-            preflight_confirm: String::from("pip 21.0.1"),
-        };
-        let mut hangar1 = models::Hangar {
-            name: String::from("Test"),
-            description: String::from("Test hangar"),
-            flights: Vec::new(),
-        };
-        hangar1.flights.push(flight1);
-        assert_eq!(hangar1.preflight(), true);
-    }
-
-    #[test]
-    fn test_improper_preflight() {
-        let flight1 = models::Flight {
-            program: String::from("pip4"),
-            preflight_args: vec![String::from("--version")],
-            preflight_confirm: String::from("pip 21.0.1"),
-        };
-        let mut hangar1 = models::Hangar {
-            name: String::from("Test"),
-            description: String::from("Test hangar"),
-            flights: Vec::new(),
-        };
-        hangar1.flights.push(flight1);
-        assert_eq!(hangar1.preflight(), false);
-    }
 
     #[test]
     fn test_install() {
